@@ -4,12 +4,19 @@
 LiquidCrystal lcd(37, 36, 35, 34, 33, 32);
 
 // Joystick
-const int joystickX = A8;
-const int joystickY = A9;
+const int joystickX = A5;
+const int joystickY = A6;
 const int joystickButton = 19;
 
+//Motor 
+#define Motor_forward    0
+#define Motor_return     1
+#define Motor_L_dir_pin  7
+#define Motor_R_dir_pin  8
+#define Motor_L_pwm_pin  9
+#define Motor_R_pwm_pin  10
+
 // Variables used by the interrupt
-volatile int buttonPresses = 0;
 volatile bool buttonPressed = false;
 volatile unsigned long lastDebounceTime = 0;
 
@@ -23,6 +30,11 @@ void setup() {
 
   pinMode(joystickButton, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(joystickButton), buttonISR, FALLING);
+  
+  pinMode(Motor_L_dir_pin, OUTPUT);
+  pinMode(Motor_R_dir_pin, OUTPUT);
+  pinMode(Motor_L_pwm_pin, OUTPUT);
+  pinMode(Motor_R_pwm_pin, OUTPUT);
 }
 
 void loop() {
@@ -30,33 +42,18 @@ void loop() {
   // Check if the button was pressed
   if (buttonPressed) {
 
-    // Change display mode
-    showButtonCount = !showButtonCount;
-
     // Reset the flag
     buttonPressed = false;
 
     // Clear LCD before changing display
+    runMotorTest();
     lcd.clear();
 
     // Print once, right when the press is registered
     Serial.print("Push counter: ");
-    Serial.println(buttonPresses);
+   
   }
 
-  // -----------------------------
-  // Display button press count
-  // -----------------------------
-  if (showButtonCount) {
-
-    lcd.setCursor(0, 0);
-    lcd.print("Push counter: ");
-
-    lcd.setCursor(0, 1);
-    lcd.print(buttonPresses);
-    lcd.print("        ");
-
-  } else {
     // -----------------------------
     // Display joystick X/Y values
     // -----------------------------
@@ -79,9 +76,8 @@ void loop() {
     lcd.print(" ");
     lcd.print(xPercent);
     lcd.print("%   ");
-  }
 
-  delay(100);
+    delay(100);
 }
 
 // -----------------------------
@@ -91,8 +87,31 @@ void buttonISR() {
   unsigned long currentTime = millis();
 
   if (currentTime - lastDebounceTime > 200) {
-    buttonPresses++;
     buttonPressed = true;
     lastDebounceTime = currentTime;
   }
+}
+void runMotorTest() {
+  digitalWrite(Motor_R_dir_pin, Motor_return);
+  digitalWrite(Motor_L_dir_pin, Motor_return);
+
+  for (int pwm = 150; pwm > 50; pwm--) {
+    analogWrite(Motor_L_pwm_pin, pwm);
+    analogWrite(Motor_R_pwm_pin, pwm);
+    delay(50);
+  }
+
+  digitalWrite(Motor_R_dir_pin, Motor_forward);
+  digitalWrite(Motor_L_dir_pin, Motor_forward);
+
+  for (int pwm = 50; pwm < 150; pwm++) {
+    analogWrite(Motor_L_pwm_pin, pwm);
+    analogWrite(Motor_R_pwm_pin, pwm);
+    delay(50);
+  }
+
+  analogWrite(Motor_L_pwm_pin, 0);
+    analogWrite(Motor_R_pwm_pin, 0);
+
+    Serial.println("Motor test finished");
 }
