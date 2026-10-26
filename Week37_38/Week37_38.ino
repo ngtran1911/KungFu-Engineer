@@ -11,10 +11,10 @@ const int joystickButton = 19;
 //Motor 
 #define Motor_forward    0
 #define Motor_return     1
-#define Motor_L_dir_pin  7
-#define Motor_R_dir_pin  8
-#define Motor_L_pwm_pin  9
-#define Motor_R_pwm_pin  10
+#define Motor_L_dir_pin  7//left direction
+#define Motor_R_dir_pin  8//right direction
+#define Motor_L_pwm_pin  9//left speed
+#define Motor_R_pwm_pin  10// right speed 
 
 // Variables used by the interrupt
 volatile bool buttonPressed = false;
@@ -114,4 +114,9 @@ void runMotorTest() {
     analogWrite(Motor_R_pwm_pin, 0);
 
     Serial.println("Motor test finished");
+}
+
+void driveForward(int delayTime){
+  digitalWrite(Motor_R_dir_pin, Motor_forward);
+  digitalWrite(Motor_L_dir_pin, Motor_forward);
 }
