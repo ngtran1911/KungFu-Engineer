@@ -42,6 +42,10 @@ void setup() {
   server.on("/backwards20", [](){ handleMove(-20); });  // handleMove(x) as soon as it's triggered.
   server.on("/compass", handleCompass);                 // When requesting URL "/compass", call the handleCompass function
 
+  server.on("/findNorth", HTTP_GET, []() {
+    Serial.println("find:North");
+    server.send(200, "text/plain", "Find North command sent");
+  });
 
   //  If someone tries to access a URL that does not exist (e.g. due to a typo), call the handleNotFound function
   server.onNotFound(handleNotFound);

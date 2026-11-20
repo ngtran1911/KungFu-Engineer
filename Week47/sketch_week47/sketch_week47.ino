@@ -32,6 +32,7 @@ const int TURN_SPEED = 100;
 const int COMPASS_COUNTS = 256;
 const unsigned long TURN_TIMEOUT_MS = 15000;
 const byte TURN_QUEUE_SIZE = 8;
+const int FIND_NORTH = 361;  // Queue marker outside the slider range.
 int pendingTurns[TURN_QUEUE_SIZE];
 byte nextTurn = 0;
 byte pendingCount = 0;
@@ -49,6 +50,7 @@ void countPulse();
 void driveDistance(int cm);
 int readBearing();
 void startTurn(int degrees);
+void queueTurn(int degrees);
 void updateTurn();
 void cancelTurns();
 void turn_left();
@@ -89,6 +91,7 @@ void setup() {
   Serial.println("drive:-8");
   Serial.println("degree:10");
   Serial.println("degree:-90");
+  Serial.println("find:North");
   Serial.println("lcd:Hello");
 }
  
@@ -199,13 +202,12 @@ void processCommand(String message) {
       return;
     }
 
-    if (pendingCount == TURN_QUEUE_SIZE) {
-      Serial.println("Turn queue is full.");
-      return;
-    }
+    queueTurn(degrees);
+  }
 
-    pendingTurns[(nextTurn + pendingCount) % TURN_QUEUE_SIZE] = degrees;
-    pendingCount++;
+  else if (message == "find:North") {
+    lcd.print("Find North");
+    queueTurn(FIND_NORTH);
   }
 
 
@@ -303,6 +305,16 @@ void cancelTurns() {
   pendingCount = 0;
 }
 
+void queueTurn(int degrees) {
+  if (pendingCount == TURN_QUEUE_SIZE) {
+    Serial.println("Turn queue is full.");
+    return;
+  }
+
+  pendingTurns[(nextTurn + pendingCount) % TURN_QUEUE_SIZE] = degrees;
+  pendingCount++;
+}
+
 void startTurn(int degrees) {
   if (degrees == 0) {
     Serial.println("Turn completed: 0 degrees.");
@@ -316,8 +328,26 @@ void startTurn(int degrees) {
     return;
   }
 
-  targetCounts = (abs(degrees) * 256L + 180) / 360;
-  turnDirection = degrees > 0 ? 1 : -1;
+  int signedCounts;
+  if (degrees == FIND_NORTH) {
+    // Read the bearing when this command reaches the front of the queue.
+    signedCounts = -previousBearing;
+    if (signedCounts < -COMPASS_COUNTS / 2) {
+      signedCounts += COMPASS_COUNTS;
+    }
+    if (signedCounts == 0) {
+      Serial.println("Already facing north.");
+      lcd.setCursor(0, 1);
+      lcd.print("Facing north    ");
+      return;
+    }
+  } else {
+    int counts = (abs(degrees) * (long)COMPASS_COUNTS + 180) / 360;
+    signedCounts = degrees > 0 ? counts : -counts;
+  }
+
+  targetCounts = abs(signedCounts);
+  turnDirection = signedCounts > 0 ? 1 : -1;
   turnProgress = 0;
   turnStarted = millis();
   turning = true;

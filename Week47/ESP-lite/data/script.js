@@ -5,7 +5,7 @@ const compassSlider = document.getElementById('compassSlider'); // Get the compa
 if (compassSlider) {
 	const middleValue = 0;
 	compassSlider.value = middleValue;	// Set slider to the middle position (0 degrees)
-	updateCompass(middleValue);			// Set the compass value to initial value of 0	
+	updateCompass(middleValue);			// Set the compass value to initial value of 0
 }
 
 
@@ -30,8 +30,21 @@ function backwards20() { move('backwards', 20); }	// Calling move function with 
 
 
 // This is a general-purpose function that can handle different combinations of direction and distance
-function move(dir, dis) { 
+function move(dir, dis) {
 	fetch(`/${dir}${dis}`);			// Sends a request to the server with a URL constructed from the received direction and distance (e.g., /forwards5)
 	console.log("Drive", dir, dis);	// Log the movement command to the console for debugging
+}
+
+async function findNorth() {
+  try {
+    const response = await fetch("/findNorth", { cache: "no-store" });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Find North request failed:", error);
+    alert("Could not send the Find North command.");
+  }
 }
 

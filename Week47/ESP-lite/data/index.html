@@ -23,5 +23,8 @@
 		and when you finish pressing and/or moving the mouse button, it calls the sendCompassValue() function.-->
 		<input type="range" min="-360" max="360" step="5" id="compassSlider" oninput="updateCompass(this.value)" onchange="sendCompassValue(this.value)" value="0"/>	
 		<div id="compassValue">0°</div>		<!-- This shows the current/last requested compass turning value -->
+	<div class="container">
+		<button type="button" class="button button2" onclick="findNorth()">Find North</button>
+	</div>
 </body>
 </html>
