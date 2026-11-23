@@ -1,0 +1,11 @@
+/* Keep controls readable on phones and large enough to tap during a demonstration. */
+body { font: 1rem/1.5 Helvetica, sans-serif; color: #193126; background: #f5f8f5; }
+main { max-width: 32rem; margin: auto; padding: 1rem; }
+section { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; margin: 1rem 0; }
+button, input { font: inherit; padding: .6rem; }
+button { background: #215d42; color: white; border: 0; border-radius: .3rem; cursor: pointer; }
+label, #error { display: block; }
+#angle { width: 92%; }
+#speed { width: 5rem; }
+/* Place validation feedback beside the speed entry group. */
+#error { color: #9b231f; }

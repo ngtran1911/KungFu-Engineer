@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Car controls</title><link rel="stylesheet" href="/style.css"><script defer src="/script.js"></script></head>
+<body><main><h1>Car controls</h1>
+<!-- The speed field accepts decimal PWM values and reports errors beside the field. -->
+<form id="speedForm"><label for="speed">Drive speed (0–255)</label>
+<input id="speed" type="text" inputmode="numeric" value="128" aria-describedby="error">
+<button>Set speed</button><span id="error" role="alert"></span></form>
+<!-- The route attributes map these buttons to the ESP movement handlers. -->
+<h2>Drive distance</h2><section>
+<button data-route="/forwards10">Forward 10 cm</button><button data-route="/forwards50">Forward 50 cm</button>
+<button data-route="/backwards10">Reverse 10 cm</button><button data-route="/backwards50">Reverse 50 cm</button></section>
+<!-- Sliding previews the angle. Releasing sends a relative turn. -->
+<h2>Compass</h2><label for="angle">Relative turn <output id="angleValue">0°</output></label>
+<input id="angle" type="range" min="-360" max="360" step="5" value="0">
+<button id="repeat">Repeat angle</button>
+<!-- Cardinal buttons refer to the north reference recorded at reset. -->
+<section><button data-route="/findNorth">Find North</button><button data-route="/findEast">Find East</button>
+<button data-route="/findSouth">Find South</button><button data-route="/findWest">Find West</button></section>
+<p id="status" role="status"></p></main></body></html>
